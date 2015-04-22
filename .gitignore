@@ -1,0 +1,5 @@
+# ignore idea files
+.idea/*
+
+# ignore image files
+original_images/*

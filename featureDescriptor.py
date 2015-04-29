@@ -1,4 +1,4 @@
-PATCH_SIZE = 9
+PATCH_SIZE = 25
 
 def getFeaturePatch(grayImage, features):
     imageHeight, imageWidth = grayImage.shape

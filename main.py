@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import featureDetect as fd
+import featureDescriptor as fdes
 
 ORIGINAL_IMAGE_PATH = 'original_images/'
 
@@ -17,6 +18,7 @@ for i in range(TOTAL_IMAGES):
     colorImage = cv2.transpose(colorImage)
     grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
     features = fd.detectFeatures(grayImage)
+    featurePatch = fdes.getFeaturePatch(grayImage, features)
     imageFeatures.append(features)
     for feature in features:
         cv2.circle(colorImage, feature[::-1], 10, (255, 0, 0), -1)

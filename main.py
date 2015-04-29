@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-from scipy import misc
 import featureDetect as fd
 
 ORIGINAL_IMAGE_PATH = 'original_images/'
@@ -13,14 +12,14 @@ cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
 for i in range(TOTAL_IMAGES):
     imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
     print imagePath
-    image = np.rot90(misc.imread(imagePath, True))
-    cvImage = cv2.imread(imagePath)
-    cvImage = cv2.flip(cvImage, 1)
-    cvImage = cv2.transpose(cvImage)
-    features = fd.detectFeatures(image)
+    colorImage = cv2.imread(imagePath)
+    colorImage = cv2.flip(colorImage, 1)
+    colorImage = cv2.transpose(colorImage)
+    grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
+    features = fd.detectFeatures(grayImage)
     imageFeatures.append(features)
     for feature in features:
-        cv2.circle(cvImage, feature, 10, (255, 0, 0), -1)
-    cv2.imshow('Test', cvImage)
+        cv2.circle(colorImage, feature, 10, (255, 0, 0), -1)
+    cv2.imshow('Test', colorImage)
     cv2.waitKey(0)
 cv2.destroyAllWindows()

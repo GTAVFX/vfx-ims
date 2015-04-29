@@ -26,5 +26,5 @@ def detectFeatures(grayImage):
     ThresRdilate = ndimage.grey_dilation(ThresR, footprint=[[1, 1, 1], [1, 0, 1], [1, 1, 1]])
     ThresRpeak = ThresR > ThresRdilate
 
-    features = [(j, i) for i in range(imageHeight) for j in range(imageWidth) if (ThresRpeak[i][j])]
+    features = [(i, j) for i in range(imageHeight) for j in range(imageWidth) if (ThresRpeak[i][j])]
     return features

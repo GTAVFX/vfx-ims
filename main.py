@@ -19,7 +19,7 @@ for i in range(TOTAL_IMAGES):
     features = fd.detectFeatures(grayImage)
     imageFeatures.append(features)
     for feature in features:
-        cv2.circle(colorImage, feature, 10, (255, 0, 0), -1)
+        cv2.circle(colorImage, feature[::-1], 10, (255, 0, 0), -1)
     cv2.imshow('Test', colorImage)
     cv2.waitKey(0)
 cv2.destroyAllWindows()

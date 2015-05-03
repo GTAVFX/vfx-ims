@@ -3,6 +3,7 @@ import cv2
 import featureDetect as fd
 import featureDescriptor as fdes
 import featureMatch as fm
+import cylintransform as ct
 import random
 
 ORIGINAL_IMAGE_PATH = 'original_images/'
@@ -21,6 +22,9 @@ for i in range(TOTAL_IMAGES):
     colorImage = cv2.imread(imagePath)
     colorImage = cv2.flip(colorImage, 1)
     colorImage = cv2.transpose(colorImage)
+    # cyImage = ct.cylintransform(colorImage)
+    # cv2.imshow('Test', cyImage)
+    # cv2.waitKey(0)
     grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
     features = fd.detectFeatures(grayImage)
     featurePatch = fdes.getFeaturePatch(grayImage, features)

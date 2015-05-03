@@ -7,7 +7,7 @@ k = 0.04
 thresholdR = 0.5
 
 def detectFeatures(grayImage):
-    print 'Detecting features for image'
+    print 'Detecting features for image...'
     imageHeight, imageWidth = grayImage.shape
     gaussImage = ndimage.filters.gaussian_filter(grayImage, 10)
     gradY, gradX = np.gradient(gaussImage)
@@ -26,5 +26,7 @@ def detectFeatures(grayImage):
     ThresRdilate = ndimage.grey_dilation(ThresR, footprint=[[1, 1, 1], [1, 0, 1], [1, 1, 1]])
     ThresRpeak = ThresR > ThresRdilate
 
-    features = [(i, j) for i in range(imageHeight) for j in range(imageWidth) if (ThresRpeak[i][j])]
+    features = ThresRpeak.nonzero()
+    features = zip(features[0], features[1]) #(row, column), (height, width)
+    print 'Total', len(features), 'features'
     return features

@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 PATCH_SIZE = 16
@@ -8,7 +7,7 @@ NUM_BINS = 4
 NUM_SAMPLES = NUM_BINS * NUM_BINS
 ALPHA = 9
 
-angles = np.linspace(0, 2 * math.pi, NUM_ANGLES, endpoint=False)
+angles = np.linspace(0, 2 * np.pi, NUM_ANGLES, endpoint=False)
 
 # Default grid samples
 interval, GRID_RESOLUTION = np.linspace(2. / NUM_BINS, 2., NUM_BINS, retstep=True)

@@ -7,6 +7,7 @@ import cylintransform as ct
 import random
 
 ORIGINAL_IMAGE_PATH = 'original_images/'
+# ORIGINAL_IMAGE_PATH = 'images/csie/'
 
 TOTAL_IMAGES = 24
 
@@ -20,8 +21,6 @@ for i in range(TOTAL_IMAGES):
     imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
     print imagePath
     colorImage = cv2.imread(imagePath)
-    colorImage = cv2.flip(colorImage, 1)
-    colorImage = cv2.transpose(colorImage)
     # cyImage = ct.cylintransform(colorImage)
     # cv2.imshow('Test', cyImage)
     # cv2.waitKey(0)
@@ -36,12 +35,10 @@ for i in range(TOTAL_IMAGES):
     cv2.waitKey(0)
 matchedIndices = fm.featureMatch(imageFeaturePatches)
 
-colorImage0 = cv2.imread('original_images/1.JPG')
-colorImage0 = cv2.flip(colorImage0, 1)
-colorImage0 = cv2.transpose(colorImage0)
-colorImage1 = cv2.imread('original_images/2.JPG')
-colorImage1 = cv2.flip(colorImage1, 1)
-colorImage1 = cv2.transpose(colorImage1)
+imagePath = ORIGINAL_IMAGE_PATH + '1.JPG'
+colorImage0 = cv2.imread(imagePath)
+imagePath = ORIGINAL_IMAGE_PATH + '2.JPG'
+colorImage1 = cv2.imread(imagePath)
 images = [colorImage0, colorImage1]
 
 for i in range(1):

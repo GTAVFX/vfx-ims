@@ -28,7 +28,6 @@ def getFeaturePatch(grayImage, features):
     gaussImage = ndimage.filters.gaussian_filter(grayImage, 5)
 
     # Calculate gradient magnitudes and directions
-    # gaussian needed ???
     gradY, gradX = np.gradient(gaussImage)
     magnitude = np.sqrt(gradX ** 2 + gradY ** 2)
     direction = np.arctan2(gradY, gradX)
@@ -36,11 +35,9 @@ def getFeaturePatch(grayImage, features):
 
     descriptors = np.zeros([numFeatures, TOTAL_GRIDS * NUM_ANGLES])
 
-    print numFeatures, 'Features'
     for i in range(numFeatures):
         # Rotate grid coordinates
         x, y, orientation = features[i]
-        # print orientation / np.pi * 180
         M = np.array([[np.cos(orientation), -np.sin(orientation)], [np.sin(orientation), np.cos(orientation)]])
         featureRotGrids = np.dot(M, featureGrids) + np.tile(np.array([[x], [y]]), (1, TOTAL_GRIDS))
         featureRotSamples = np.dot(M, featureSamples) + np.tile(np.array([[x], [y]]), (1, TOTAL_SAMPLES))
@@ -50,18 +47,12 @@ def getFeaturePatch(grayImage, features):
         featureRotSamplesIdx = np.array(featureRotSamplesRound[1, ] * imageWidth + featureRotSamplesRound[0, ], dtype=np.int64)
         magSamples = magnitude.take(featureRotSamplesIdx).reshape(TOTAL_SAMPLES, 1)
         dirSamples = direction.take(featureRotSamplesIdx).reshape(TOTAL_SAMPLES, 1)
-        # print magSamples
-        # print magSamples.shape
-        # print dirSamples
-        # print dirSamples.shape
 
         # Calculate position weightings
         featureRotGridsX = featureRotGrids[0].reshape(1, TOTAL_GRIDS)
         featureRotGridsY = featureRotGrids[1].reshape(1, TOTAL_GRIDS)
         featureRotSamplesX = featureRotSamples[0].reshape(TOTAL_SAMPLES, 1)
         featureRotSamplesY = featureRotSamples[1].reshape(TOTAL_SAMPLES, 1)
-        # print featureRotGridsX.shape
-        # print featureRotSamplesX.shape
 
         distRotX = np.abs(np.tile(featureRotSamplesX, (1, TOTAL_GRIDS)) - np.tile(featureRotGridsX, (TOTAL_SAMPLES, 1)))
         distRotY = np.abs(np.tile(featureRotSamplesY, (1, TOTAL_GRIDS)) - np.tile(featureRotGridsY, (TOTAL_SAMPLES, 1)))
@@ -71,22 +62,15 @@ def getFeaturePatch(grayImage, features):
         weightY = distRotY / GRID_SPACING
         weightY = (1 - weightY) * (weightY <= 1)
         weightPos = weightX * weightY
-        # print weightPos
-        # print weightPos.shape
 
         # Calculate orientation weightings
         distDir = np.mod(np.tile(dirSamples, (1, NUM_ANGLES)) - np.tile(angles, (TOTAL_SAMPLES, 1)) - orientation + np.pi, 2 * np.pi) - np.pi
 
         weightDir = np.abs(distDir) / ANGLE_SPACING
         weightDir = (1 - weightDir) * (weightDir <= 1)
-        # print 'angle dist:'
-        # print weightDir
-        # print weightDir.shape
 
         # Calculate gaussian weightings
         weightGaussian = np.exp(-((featureRotSamplesX - x) ** 2 + ((featureRotSamplesY - y) ** 2)) / (2 * FEATURE_WINDOW ** 2)) / (2 * np.pi * FEATURE_WINDOW ** 2)
-        # print weightGaussian
-        # print weightGaussian.shape
 
         # Creating feature descriptor
         weightedMags = np.tile(magSamples, (1, NUM_ANGLES)) * np.tile(weightGaussian, (1, NUM_ANGLES)) * weightDir
@@ -97,29 +81,11 @@ def getFeaturePatch(grayImage, features):
             currentSIFT[a, :] = np.sum(weightedMag * weightPos, axis=0)
         descriptors[i, :] = np.reshape(currentSIFT, (1, TOTAL_GRIDS * NUM_ANGLES))
 
-        # Calculate gradient orientation histogram
-        # for s in range(TOTAL_SAMPLES):
-        #     sampleX = featureRotSamples[0, s]
-        #     sampleY = featureRotSamples[1, s]
-        #
-        #     # Interpolate gradient at sample position
-        #     interImage = interpolate.interp2d(np.arange(imageWidth), np.arange(imageHeight), gaussImage) # This is a function
-        #     G = interImage([sampleX - 1, sampleX, sampleX + 1], [sampleY - 1, sampleY, sampleY + 1])
-        #     diffX = 0.5 * (G[1, 2] - G[1, 0])
-        #     diffY = 0.5 * (G[2, 1] - G[0, 1])
-        #     sampleMag = np.sqrt(diffX ** 2 + diffY ** 2)
-        #     sampleDir = np.arctan2(diffY, diffX)
-        #
-        #     print sampleMag, sampleDir
-
     # Normalize SIFT descriptor
     norm = np.sqrt(np.sum(descriptors ** 2, axis=1))
-    # normIndices = (norm > 1).nonzero()
     norm = np.reshape(norm, (norm.shape[0], 1))
-    # normDescriptors = descriptors[normIndices]
 
     normDescriptors = descriptors / np.tile(norm, (1, TOTAL_GRIDS * NUM_ANGLES))
-    # normDescriptors = normDescriptors / np.tile(norm[normIndices], (1, TOTAL_GRIDS * NUM_ANGLES))
 
     # Suppress large gradients
     normDescriptors[(normDescriptors > 0.2).nonzero()] = 0.2
@@ -129,6 +95,4 @@ def getFeaturePatch(grayImage, features):
     norm = np.reshape(norm, (norm.shape[0], 1))
     normDescriptors = normDescriptors / np.tile(norm, (1, TOTAL_GRIDS * NUM_ANGLES))
 
-    # descriptors[normIndices] = normDescriptors
-    # return descriptors
     return normDescriptors

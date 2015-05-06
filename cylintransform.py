@@ -1,8 +1,8 @@
 import numpy as np
-def cylintransform(colorImage):
+def cylintransform(colorImage, focus):
 
     imageHeight, imageWidth, colorChannels = colorImage.shape
-    f = 1800
+    f = focus
     s = f
 
     midX = imageWidth / 2

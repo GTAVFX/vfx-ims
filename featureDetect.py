@@ -27,6 +27,7 @@ def detectFeatures(grayImage):
     ThresRpeak = ThresR > ThresRdilate
 
     features = ThresRpeak.nonzero()
-    features = zip(features[0], features[1]) #(row, column), (height, width)
+    # features = zip(features[0], features[1]) #(row, column), (height, width)
+    features = zip(features[1], features[0]) #(column, row), (width, height) (x, y)
     print 'Total', len(features), 'features'
     return features

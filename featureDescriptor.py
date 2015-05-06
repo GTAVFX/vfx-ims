@@ -39,7 +39,7 @@ def getFeaturePatch(grayImage, features):
     print numFeatures, 'Features'
     for i in range(numFeatures):
         # Rotate grid coordinates
-        y, x, orientation = features[i]
+        x, y, orientation = features[i]
         # print orientation / np.pi * 180
         M = np.array([[np.cos(orientation), -np.sin(orientation)], [np.sin(orientation), np.cos(orientation)]])
         featureRotGrids = np.dot(M, featureGrids) + np.tile(np.array([[x], [y]]), (1, TOTAL_GRIDS))

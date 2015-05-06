@@ -2,7 +2,7 @@ from scipy import spatial
 
 THRESHOLD_1NN2NN_RATIO = 0.6
 
-def featureMatch(allFeaturePatches):
+def featureMatch(allFeatures, allFeaturePatches):
     imageNum = len(allFeaturePatches)
     matchedIndices = []
     for i in range(imageNum):

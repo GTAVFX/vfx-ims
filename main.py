@@ -7,8 +7,8 @@ import orientationAssignment as oa
 import cylintransform as ct
 import random
 
-ORIGINAL_IMAGE_PATH = 'original_images/'
-# ORIGINAL_IMAGE_PATH = 'images/csie/'
+# ORIGINAL_IMAGE_PATH = 'original_images/'
+ORIGINAL_IMAGE_PATH = 'images/csie/'
 
 TOTAL_IMAGES = 11
 
@@ -30,7 +30,7 @@ for i in range(TOTAL_IMAGES):
     imageFeatures.append(features)
     imageFeaturePatches.append(featurePatch)
     for feature in features:
-        startPt = tuple(np.array(feature[0:2][::-1], dtype=np.int64))
+        startPt = tuple(np.array(feature[0:2], dtype=np.int64))
         lineLength = 15
         endPt = (np.round(lineLength * np.cos(feature[2]) + startPt[0]), np.round(lineLength * np.sin(feature[2]) + startPt[1]))
         endPt = tuple(np.array(endPt, dtype=np.int64))
@@ -39,7 +39,7 @@ for i in range(TOTAL_IMAGES):
 
     cv2.imshow('Test', colorImage)
     cv2.waitKey(0)
-matchedIndices = fm.featureMatch(imageFeaturePatches)
+matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
 
 
 for i in range(TOTAL_IMAGES):
@@ -59,8 +59,8 @@ for i in range(TOTAL_IMAGES):
         R = j * random.randint(0, 65536) % 255
         G = j * random.randint(0, 65536) % 255
         B = j * random.randint(0, 65536) % 255
-        startPt = tuple(np.array(features[matched[j][0]][0:2][::-1], dtype=np.int64))
-        nextStartPt = tuple(np.array(nextFeatures[matched[j][1]][0:2][::-1], dtype=np.int64))
+        startPt = tuple(np.array(features[matched[j][0]][0:2], dtype=np.int64))
+        nextStartPt = tuple(np.array(nextFeatures[matched[j][1]][0:2], dtype=np.int64))
         cv2.circle(images[0], startPt, 10, (R, G, B), 2)
         cv2.circle(images[1], nextStartPt, 10, (R, G, B), 2)
         lineLength = 15

@@ -41,7 +41,7 @@ def assignOreintation(grayImage, featuresPos):
     newFeatureOrientation = np.empty([0, 1])
 
     for i in range(numFeatures):
-        y, x = featuresPos[i]
+        x, y = featuresPos[i]
 
         # # Add zero padding to x, y
         # y += ZERO_PAD
@@ -80,7 +80,7 @@ def assignOreintation(grayImage, featuresPos):
                 maxOrient += 2 * np.pi
             while maxOrient >= np.pi:
                 maxOrient -= 2 * np.pi
-            newFeaturePos = np.concatenate((newFeaturePos, [[y, x]]), axis=0)
+            newFeaturePos = np.concatenate((newFeaturePos, [[x, y]]), axis=0)
             # newFeaturePos = np.concatenate((newFeaturePos, [[y - ZERO_PAD, x - ZERO_PAD]]), axis=0)
             newFeatureOrientation = np.concatenate((newFeatureOrientation, [maxOrient]), axis=0)
 

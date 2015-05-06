@@ -15,7 +15,7 @@ TOTAL_IMAGES = 11
 imageFeatures = []
 imageFeaturePatches = []
 cv2.startWindowThread()
-cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
+# cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
 for i in range(TOTAL_IMAGES):
     # if i is 2:
     #     break
@@ -37,8 +37,8 @@ for i in range(TOTAL_IMAGES):
         cv2.circle(colorImage, startPt, 10, (255, 0, 0), 2)
         cv2.line(colorImage, startPt, endPt, (255, 0, 0), 2)
 
-    cv2.imshow('Test', colorImage)
-    cv2.waitKey(0)
+    # cv2.imshow('Test', colorImage)
+    # cv2.waitKey(0)
 matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
 
 

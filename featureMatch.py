@@ -1,4 +1,5 @@
 from scipy import spatial
+import util.ransac as ransac
 
 THRESHOLD_1NN2NN_RATIO = 0.6
 
@@ -27,7 +28,11 @@ def featureMatch(allFeatures, allFeaturePatches):
         thisMatchedSet = set(thisMatchedPairs)
         nextMatchedSet = set(nextMatchedPairs)
         match = [matchPair for matchPair in thisMatchedSet & nextMatchedSet]
-        print 'Total', str(len(match)), 'pairs'
 
-        matchedIndices.append(match)
+        # ((img1 feature X, img1 feature Y), (img2 feature X, img2 feature Y))
+        matchPos = [((allFeatures[i][thisIndex][0], allFeatures[i][thisIndex][1]), (allFeatures[nextIndex][matchedIndex][0], allFeatures[nextIndex][matchedIndex][1])) for thisIndex, matchedIndex in match]
+        ransacedMatch = ransac.ransac(match, matchPos)
+        print 'Total', str(len(ransacedMatch)), 'pairs'
+
+        matchedIndices.append(ransacedMatch)
     return matchedIndices

@@ -12,7 +12,7 @@ import random
 # ORIGINAL_IMAGE_PATH = 'original_images/'
 ORIGINAL_IMAGE_PATH = 'images/csie/'
 OUTPUT_IMAGE_PATH = 'output_images/'
-FOCUS = 1600
+FOCUS = 1800
 
 TOTAL_IMAGES = 11
 

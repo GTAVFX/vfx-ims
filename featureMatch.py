@@ -8,7 +8,7 @@ def featureMatch(allFeatures, allFeaturePatches):
     matchedIndices = []
     for i in range(imageNum - 1):
         nextIndex = i + 1
-        print 'Matching', str(len(allFeaturePatches[i])), 'features of image', str(i), 'and', str(len(allFeaturePatches[nextIndex])), 'features of image', str(nextIndex), '...'
+        print 'Matching', str(len(allFeaturePatches[i])), 'features of image', str(i + 1), 'and', str(len(allFeaturePatches[nextIndex])), 'features of image', str(nextIndex + 1), '...'
         thisTree = spatial.KDTree(allFeaturePatches[i])
         nextTree = spatial.KDTree(allFeaturePatches[nextIndex])
         thisMatch = nextTree.query(allFeaturePatches[i], k=2) # Query 1NN and 2NN

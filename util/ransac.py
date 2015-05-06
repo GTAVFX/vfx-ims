@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-RANSAC_LOOP_NUM = 100
+RANSAC_LOOP_NUM = 200
 SAMPLE_NUM = 4
 DIFF_THRESHOLD = 20
 

@@ -17,10 +17,14 @@ def imageStitching(images, imageDisplacements):
         if yOrigin < maxNegativeShift:
             maxNegativeShift = yOrigin
     stitchedImageHeight = imageHeight + (maxPositiveShift - maxNegativeShift)
+    print imageWidth, imageHeight
+    print imageDisplacements
+    print maxPositiveShift
+    print maxNegativeShift
 
     # Stitching images
     stitchedImage = np.zeros([stitchedImageHeight, stitchedImageWidth, colorChannels], dtype=np.uint8)
-    imageOrigin = np.array([0, maxPositiveShift])
+    imageOrigin = np.array([0, -maxNegativeShift])
     for i in range(imageNum):
         print 'Stitching Image', str(i + 1)
         for c in range(colorChannels):

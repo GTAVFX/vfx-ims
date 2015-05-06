@@ -23,10 +23,6 @@ for i in range(TOTAL_IMAGES):
     print imagePath
     colorImage = cv2.imread(imagePath)
     colorImage = ct.cylintransform(colorImage)
-    # cyImage = ct.cylintransform(colorImage)
-    # cv2.imshow('Test', cyImage)
-    # cv2.imshow('Test', colorImage)
-    # cv2.waitKey(0)
     grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
     featuresPos = fd.detectFeatures(grayImage)
     features = oa.assignOreintation(grayImage, featuresPos)
@@ -50,8 +46,10 @@ for i in range(TOTAL_IMAGES):
     nextIndex = (i + 1) if i is not len(matchedIndices) - 1 else 0
     imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
     colorImage = cv2.imread(imagePath)
+    colorImage = ct.cylintransform(colorImage)
     nextImagePath = ORIGINAL_IMAGE_PATH + str(nextIndex + 1) + '.JPG'
     nextColorImage = cv2.imread(nextImagePath)
+    nextColorImage = ct.cylintransform(nextColorImage)
     images = [colorImage, nextColorImage]
 
     matched = matchedIndices[i]

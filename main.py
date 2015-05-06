@@ -9,12 +9,12 @@ import util.calcImageDisplacements as cid
 import imageStitching as ist
 import random
 
-# ORIGINAL_IMAGE_PATH = 'original_images/'
-ORIGINAL_IMAGE_PATH = 'images/csie/'
+ORIGINAL_IMAGE_PATH = 'original_images/'
+# ORIGINAL_IMAGE_PATH = 'images/csie/'
 OUTPUT_IMAGE_PATH = 'output_images/'
-FOCUS = 1800
+FOCUS = 2243
 
-TOTAL_IMAGES = 11
+TOTAL_IMAGES = 9
 
 images = []
 imageFeatures = []
@@ -22,8 +22,6 @@ imageFeaturePatches = []
 cv2.startWindowThread()
 # cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
 for i in range(TOTAL_IMAGES):
-    # if i is 2:
-    #     break
     imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
     print imagePath
     colorImage = cv2.imread(imagePath)
@@ -52,9 +50,6 @@ print len(images)
 stitchedImage = ist.imageStitching(images, imageDisplacements)
 outputPath = OUTPUT_IMAGE_PATH + 'stitchedImage.jpg'
 cv2.imwrite(outputPath, stitchedImage)
-cv2.namedWindow('Stitched Image')
-cv2.imshow('Stitched Image', stitchedImage)
-cv2.waitKey(0)
 
 for i in range(TOTAL_IMAGES - 1):
     nextIndex = i + 1

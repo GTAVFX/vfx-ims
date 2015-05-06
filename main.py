@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import featureDetect as fd
-import featureDescriptor2 as fdes
+import featureDescriptor as fdes
 import featureMatch as fm
 import orientationAssignment as oa
 import cylintransform as ct

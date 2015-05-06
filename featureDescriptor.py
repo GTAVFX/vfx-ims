@@ -1,103 +1,134 @@
 import numpy as np
+from scipy import ndimage
 
-PATCH_SIZE = 16
-PATCH_RADIUS = PATCH_SIZE / 2
 NUM_ANGLES = 8
 NUM_BINS = 4
-NUM_SAMPLES = NUM_BINS * NUM_BINS
-ALPHA = 9
+GRID_SPACING = 4
+NUM_SAMPLES = NUM_BINS * GRID_SPACING
+TOTAL_GRIDS = NUM_BINS * NUM_BINS
+TOTAL_SAMPLES = NUM_SAMPLES * NUM_SAMPLES
+FEATURE_WINDOW = 2 * GRID_SPACING
 
-angles = np.linspace(0, 2 * np.pi, NUM_ANGLES, endpoint=False)
+angles, ANGLE_SPACING = np.linspace(-np.pi, np.pi, NUM_ANGLES, endpoint=False, retstep=True)
 
 # Default grid samples
-interval, GRID_RESOLUTION = np.linspace(2. / NUM_BINS, 2., NUM_BINS, retstep=True)
-interval -= (1. / NUM_BINS + 1)
-GRID_RESOLUTION *= PATCH_RADIUS
-gridX, gridY = np.meshgrid(interval, interval)
-gridX = np.reshape(gridX, (1, NUM_SAMPLES))
-gridY = np.reshape(gridY, (1, NUM_SAMPLES))
+gridsInterval = np.linspace(-6, 6, NUM_BINS)
+gridsX, gridsY = np.meshgrid(gridsInterval, gridsInterval)
+featureGrids = np.concatenate((gridsX.reshape(1, TOTAL_GRIDS), gridsY.reshape(1, TOTAL_GRIDS)), axis=0)
+samplesInterval = np.linspace(-(2 * GRID_SPACING - 0.5), 2 * GRID_SPACING - 0.5, NUM_SAMPLES)
+samplesX, samplesY = np.meshgrid(samplesInterval, samplesInterval)
+featureSamples = np.concatenate((samplesX.reshape(1, TOTAL_SAMPLES), samplesY.reshape(1, TOTAL_SAMPLES)), axis=0)
 
-def getFeaturePatch(grayImage, featuresPos):
+def getFeaturePatch(grayImage, features):
     print 'Extracting SIFT descriptors...'
     imageHeight, imageWidth = grayImage.shape
-    numFeatures = len(featuresPos)
-    siftPatches = np.zeros([numFeatures, NUM_SAMPLES * NUM_ANGLES])
+    numFeatures = len(features)
+
+    # Smoothing the image
+    gaussImage = ndimage.filters.gaussian_filter(grayImage, 5)
 
     # Calculate gradient magnitudes and directions
     # gaussian needed ???
-    gradY, gradX = np.gradient(grayImage)
+    gradY, gradX = np.gradient(gaussImage)
     magnitude = np.sqrt(gradX ** 2 + gradY ** 2)
     direction = np.arctan2(gradY, gradX)
+    direction[(direction == np.pi).nonzero()] = -np.pi
 
-    # Orientation images
-    orientation = np.zeros([imageHeight, imageWidth, NUM_ANGLES])
-    for a in range(NUM_ANGLES):
-        tmp = np.cos(direction - angles[a]) ** ALPHA
-        tmp *= (tmp > 0)
-        orientation[:, :, a] = tmp * magnitude
+    descriptors = np.zeros([numFeatures, TOTAL_GRIDS * NUM_ANGLES])
 
-    for i in range(len(featuresPos)):
-        y, x = featuresPos[i]
-        # Bin centers coordinates
-        gridXT = gridX * PATCH_RADIUS + x
-        gridYT = gridY * PATCH_RADIUS + y
+    print numFeatures, 'Features'
+    for i in range(numFeatures):
+        # Rotate grid coordinates
+        y, x, orientation = features[i]
+        # print orientation / np.pi * 180
+        M = np.array([[np.cos(orientation), -np.sin(orientation)], [np.sin(orientation), np.cos(orientation)]])
+        featureRotGrids = np.dot(M, featureGrids) + np.tile(np.array([[x], [y]]), (1, TOTAL_GRIDS))
+        featureRotSamples = np.dot(M, featureSamples) + np.tile(np.array([[x], [y]]), (1, TOTAL_SAMPLES))
 
-        # Window of pixel of this descriptor
-        # xLow = np.floor(np.maximum(x - PATCH_RADIUS - GRID_RESOLUTION/2, 0))
-        # xHigh = np.ceil(np.minimum(x + PATCH_RADIUS + GRID_RESOLUTION/2, imageWidth - 1))
-        # yLow = np.floor(np.maximum(y - PATCH_RADIUS - GRID_RESOLUTION/2, 0))
-        # yHigh = np.ceil(np.minimum(y + PATCH_RADIUS + GRID_RESOLUTION/2, imageHeight - 1))
-        xLow = np.maximum(x - PATCH_RADIUS, 0)
-        xHigh = np.minimum(x + PATCH_RADIUS - 1, imageWidth - 1)
-        yLow = np.maximum(y - PATCH_RADIUS, 0)
-        yHigh = np.minimum(y + PATCH_RADIUS - 1, imageHeight - 1)
+        # Sampling magnitude and directions
+        featureRotSamplesRound = np.round(featureRotSamples)
+        featureRotSamplesIdx = np.array(featureRotSamplesRound[1, ] * imageWidth + featureRotSamplesRound[0, ], dtype=np.int64)
+        magSamples = magnitude.take(featureRotSamplesIdx).reshape(TOTAL_SAMPLES, 1)
+        dirSamples = direction.take(featureRotSamplesIdx).reshape(TOTAL_SAMPLES, 1)
+        # print magSamples
+        # print magSamples.shape
+        # print dirSamples
+        # print dirSamples.shape
 
-        windowWidth = xHigh - xLow + 1
-        windowHeight = yHigh - yLow + 1
-        numPixels = windowWidth * windowHeight
+        # Calculate position weightings
+        featureRotGridsX = featureRotGrids[0].reshape(1, TOTAL_GRIDS)
+        featureRotGridsY = featureRotGrids[1].reshape(1, TOTAL_GRIDS)
+        featureRotSamplesX = featureRotSamples[0].reshape(TOTAL_SAMPLES, 1)
+        featureRotSamplesY = featureRotSamples[1].reshape(TOTAL_SAMPLES, 1)
+        # print featureRotGridsX.shape
+        # print featureRotSamplesX.shape
 
-        # Pixel coordinates
-        gridPX, gridPY = np.meshgrid(np.linspace(xLow, xHigh, windowWidth), np.linspace(yLow, yHigh, windowHeight))
-        gridPX = np.reshape(gridPX, (numPixels, 1))
-        gridPY = np.reshape(gridPY, (numPixels, 1))
+        distRotX = np.abs(np.tile(featureRotSamplesX, (1, TOTAL_GRIDS)) - np.tile(featureRotGridsX, (TOTAL_SAMPLES, 1)))
+        distRotY = np.abs(np.tile(featureRotSamplesY, (1, TOTAL_GRIDS)) - np.tile(featureRotGridsY, (TOTAL_SAMPLES, 1)))
 
-        # Calculate distance between each pixel and grid sample
-        distPX = np.abs(np.tile(gridPX, (1, NUM_SAMPLES)) - np.tile(gridXT, (numPixels, 1)))
-        distPY = np.abs(np.tile(gridPY, (1, NUM_SAMPLES)) - np.tile(gridYT, (numPixels, 1)))
-
-        # Calculate weight of contribution of each pixel to each bin
-        weightX = distPX / (GRID_RESOLUTION / 2 + 1)
+        weightX = distRotX / GRID_SPACING
         weightX = (1 - weightX) * (weightX <= 1)
-        weightY = distPY / (GRID_RESOLUTION / 2 + 1)
+        weightY = distRotY / GRID_SPACING
         weightY = (1 - weightY) * (weightY <= 1)
-        weights = weightX * weightY
+        weightPos = weightX * weightY
+        # print weightPos
+        # print weightPos.shape
 
-        # Make SIFT descriptor
-        currentSIFT = np.zeros([NUM_ANGLES, NUM_SAMPLES])
+        # Calculate orientation weightings
+        distDir = np.mod(np.tile(dirSamples, (1, NUM_ANGLES)) - np.tile(angles, (TOTAL_SAMPLES, 1)) - orientation + np.pi, 2 * np.pi) - np.pi
+
+        weightDir = np.abs(distDir) / ANGLE_SPACING
+        weightDir = (1 - weightDir) * (weightDir <= 1)
+        # print 'angle dist:'
+        # print weightDir
+        # print weightDir.shape
+
+        # Calculate gaussian weightings
+        weightGaussian = np.exp(-((featureRotSamplesX - x) ** 2 + ((featureRotSamplesY - y) ** 2)) / (2 * FEATURE_WINDOW ** 2)) / (2 * np.pi * FEATURE_WINDOW ** 2)
+        # print weightGaussian
+        # print weightGaussian.shape
+
+        # Creating feature descriptor
+        weightedMags = np.tile(magSamples, (1, NUM_ANGLES)) * np.tile(weightGaussian, (1, NUM_ANGLES)) * weightDir
+        currentSIFT = np.zeros([NUM_ANGLES, TOTAL_GRIDS])
         for a in range(NUM_ANGLES):
-            tmp = np.reshape(orientation[yLow:yHigh+1, xLow:xHigh+1, a], (numPixels, 1))
-            tmp = np.tile(tmp, (1, NUM_SAMPLES))
-            currentSIFT[a, :] = np.sum(tmp * weights, axis=0)
+            weightedMag = weightedMags[:, a].reshape(TOTAL_SAMPLES, 1)
+            weightedMag = np.tile(weightedMag, (1, TOTAL_GRIDS))
+            currentSIFT[a, :] = np.sum(weightedMag * weightPos, axis=0)
+        descriptors[i, :] = np.reshape(currentSIFT, (1, TOTAL_GRIDS * NUM_ANGLES))
 
-        siftPatches[i, :] = np.reshape(currentSIFT, (1, NUM_SAMPLES * NUM_ANGLES))
+        # Calculate gradient orientation histogram
+        # for s in range(TOTAL_SAMPLES):
+        #     sampleX = featureRotSamples[0, s]
+        #     sampleY = featureRotSamples[1, s]
+        #
+        #     # Interpolate gradient at sample position
+        #     interImage = interpolate.interp2d(np.arange(imageWidth), np.arange(imageHeight), gaussImage) # This is a function
+        #     G = interImage([sampleX - 1, sampleX, sampleX + 1], [sampleY - 1, sampleY, sampleY + 1])
+        #     diffX = 0.5 * (G[1, 2] - G[1, 0])
+        #     diffY = 0.5 * (G[2, 1] - G[0, 1])
+        #     sampleMag = np.sqrt(diffX ** 2 + diffY ** 2)
+        #     sampleDir = np.arctan2(diffY, diffX)
+        #
+        #     print sampleMag, sampleDir
 
     # Normalize SIFT descriptor
-    norm = np.sqrt(np.sum(siftPatches ** 2, axis=1))
+    norm = np.sqrt(np.sum(descriptors ** 2, axis=1))
     # normIndices = (norm > 1).nonzero()
     norm = np.reshape(norm, (norm.shape[0], 1))
-    # siftNormPatches = siftPatches[normIndices]
+    # normDescriptors = descriptors[normIndices]
 
-    siftNormPatches = siftPatches / np.tile(norm, (1, NUM_SAMPLES * NUM_ANGLES))
-    # siftNormPatches = siftNormPatches / np.tile(norm[normIndices], (1, NUM_SAMPLES * NUM_ANGLES))
+    normDescriptors = descriptors / np.tile(norm, (1, TOTAL_GRIDS * NUM_ANGLES))
+    # normDescriptors = normDescriptors / np.tile(norm[normIndices], (1, TOTAL_GRIDS * NUM_ANGLES))
 
     # Suppress large gradients
-    siftNormPatches[(siftNormPatches > 0.2).nonzero()] = 0.2
+    normDescriptors[(normDescriptors > 0.2).nonzero()] = 0.2
 
     # Renormalize SIFT descriptor
-    norm = np.sqrt(np.sum(siftNormPatches ** 2, axis=1))
+    norm = np.sqrt(np.sum(normDescriptors ** 2, axis=1))
     norm = np.reshape(norm, (norm.shape[0], 1))
-    siftNormPatches = siftNormPatches / np.tile(norm, (1, NUM_SAMPLES * NUM_ANGLES))
+    normDescriptors = normDescriptors / np.tile(norm, (1, TOTAL_GRIDS * NUM_ANGLES))
 
-    # siftPatches[normIndices] = siftNormPatches
-    # return siftPatches
-    return siftNormPatches
+    # descriptors[normIndices] = normDescriptors
+    # return descriptors
+    return normDescriptors

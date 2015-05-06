@@ -46,7 +46,7 @@ def assignOreintation(grayImage, featuresPos):
         # # Add zero padding to x, y
         # y += ZERO_PAD
         # x += ZERO_PAD
-        if y - hf_sz < 0 or y + hf_sz > imageHeight or x - hf_sz < 0 or x + hf_sz > imageWidth:
+        if y - hf_sz < 0 or y + hf_sz >= imageHeight or x - hf_sz < 0 or x + hf_sz >= imageWidth:
             continue
         weight = g * magnitude[y - hf_sz:y + hf_sz + 1, x - hf_sz:x + hf_sz + 1]
         # weight = g * padMagnitude[y - hf_sz:y + hf_sz + 1, x - hf_sz:x + hf_sz + 1]

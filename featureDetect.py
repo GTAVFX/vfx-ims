@@ -9,7 +9,7 @@ thresholdR = 0.5
 def detectFeatures(grayImage):
     print 'Detecting features for image...'
     imageHeight, imageWidth = grayImage.shape
-    gaussImage = ndimage.filters.gaussian_filter(grayImage, 10)
+    gaussImage = ndimage.filters.gaussian_filter(grayImage, 5)
     gradY, gradX = np.gradient(gaussImage)
     gradXX = gradX * gradX
     gradYY = gradY * gradY

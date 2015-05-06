@@ -59,15 +59,15 @@ for i in range(1):
         R = j * random.randint(0, 65536) % 255
         G = j * random.randint(0, 65536) % 255
         B = j * random.randint(0, 65536) % 255
-        startPt = tuple(np.array(features[j][0:2][::-1], dtype=np.int64))
-        nextStartPt = tuple(np.array(nextFeatures[matched[j]][0:2][::-1], dtype=np.int64))
+        startPt = tuple(np.array(features[matched[j][0]][0:2][::-1], dtype=np.int64))
+        nextStartPt = tuple(np.array(nextFeatures[matched[j][1]][0:2][::-1], dtype=np.int64))
         cv2.circle(images[i], startPt, 10, (R, G, B), 2)
         cv2.circle(images[nextIndex], nextStartPt, 10, (R, G, B), 2)
         lineLength = 15
-        endPt = (np.round(lineLength * np.cos(features[j][2]) + startPt[0]), np.round(lineLength * np.sin(features[j][2]) + startPt[1]))
+        endPt = (np.round(lineLength * np.cos(features[matched[j][0]][2]) + startPt[0]), np.round(lineLength * np.sin(features[matched[j][0]][2]) + startPt[1]))
         endPt = tuple(np.array(endPt, dtype=np.int64))
         cv2.line(images[i], startPt, endPt, (R, G, B), 2)
-        nextEndPt = (np.round(lineLength * np.cos(nextFeatures[matched[j]][2]) + nextStartPt[0]), np.round(lineLength * np.sin(nextFeatures[matched[j]][2]) + nextStartPt[1]))
+        nextEndPt = (np.round(lineLength * np.cos(nextFeatures[matched[j][1]][2]) + nextStartPt[0]), np.round(lineLength * np.sin(nextFeatures[matched[j][1]][2]) + nextStartPt[1]))
         nextEndPt = tuple(np.array(nextEndPt, dtype=np.int64))
         cv2.line(images[nextIndex], nextStartPt, nextEndPt, (R, G, B), 2)
 

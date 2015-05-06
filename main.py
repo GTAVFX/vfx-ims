@@ -15,20 +15,21 @@ TOTAL_IMAGES = 11
 imageFeatures = []
 imageFeaturePatches = []
 cv2.startWindowThread()
-# cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
+cv2.namedWindow('Test', cv2.WINDOW_NORMAL)
 for i in range(TOTAL_IMAGES):
     # if i is 2:
     #     break
     imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
     print imagePath
     colorImage = cv2.imread(imagePath)
+    colorImage = ct.cylintransform(colorImage)
     # cyImage = ct.cylintransform(colorImage)
     # cv2.imshow('Test', cyImage)
+    # cv2.imshow('Test', colorImage)
     # cv2.waitKey(0)
     grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
     featuresPos = fd.detectFeatures(grayImage)
     features = oa.assignOreintation(grayImage, featuresPos)
-    # features = np.concatenate((np.array(featuresPos), np.zeros([len(featuresPos), 1])), axis=1)
     featurePatch = fdes.getFeaturePatch(grayImage, features)
     imageFeatures.append(features)
     imageFeaturePatches.append(featurePatch)
@@ -40,8 +41,8 @@ for i in range(TOTAL_IMAGES):
         cv2.circle(colorImage, startPt, 10, (255, 0, 0), 2)
         cv2.line(colorImage, startPt, endPt, (255, 0, 0), 2)
 
-    # cv2.imshow('Test', colorImage)
-    # cv2.waitKey(0)
+    cv2.imshow('Test', colorImage)
+    cv2.waitKey(0)
 matchedIndices = fm.featureMatch(imageFeaturePatches)
 
 

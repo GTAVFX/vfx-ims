@@ -13,8 +13,10 @@ ORIGINAL_IMAGE_PATH = 'original_images/'
 # ORIGINAL_IMAGE_PATH = 'images/csie/'
 OUTPUT_IMAGE_PATH = 'output_images/'
 FOCUS = 2243
+# FOCUS = 1765
 
 TOTAL_IMAGES = 9
+# TOTAL_IMAGES = 11
 
 images = []
 imageFeatures = []

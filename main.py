@@ -46,7 +46,6 @@ for i in range(TOTAL_IMAGES):
 matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
 
 imageDisplacements = cid.calcImageDisplacements(imageFeatures, matchedIndices)
-print len(images)
 stitchedImage = ist.imageStitching(images, imageDisplacements)
 outputPath = OUTPUT_IMAGE_PATH + 'stitchedImage.jpg'
 cv2.imwrite(outputPath, stitchedImage)

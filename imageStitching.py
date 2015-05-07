@@ -1,4 +1,5 @@
 import numpy as np
+import util.linearBlend as linearBlend
 
 def imageStitching(images, imageDisplacements):
     imageNum = len(images)
@@ -20,11 +21,20 @@ def imageStitching(images, imageDisplacements):
 
     # Stitching images
     stitchedImage = np.zeros([stitchedImageHeight, stitchedImageWidth, colorChannels], dtype=np.uint8)
+
+    # Putting image1 to the stitched image
+    print 'Stitching Image 1'
     imageOrigin = np.array([0, -maxNegativeShift])
-    for i in range(imageNum):
-        print 'Stitching Image', str(i + 1)
-        for c in range(colorChannels):
-            stitchedImage[imageOrigin[1]: imageOrigin[1] + imageHeight, imageOrigin[0]: imageOrigin[0] + imageWidth, c] = images[i][:, :, c]
-        if i < imageNum - 1:
-            imageOrigin += np.array(imageDisplacements[i])
+    stitchedImage[imageOrigin[1]: imageOrigin[1] + imageHeight, imageOrigin[0]: imageOrigin[0] + imageWidth, :] = images[0][:, :, :]
+
+    for i in range(imageNum - 1):
+        print 'Stitching Image', str(i + 2)
+        imageOrigin += np.array(imageDisplacements[i])
+        overlapWidth = imageWidth - imageDisplacements[i][0]
+        overlapImg1 = stitchedImage[:, imageOrigin[0]: imageOrigin[0] + overlapWidth, :]
+        overlapImg2 = np.zeros([stitchedImageHeight, overlapWidth, colorChannels], dtype=np.uint8)
+        overlapImg2[imageOrigin[1]: imageOrigin[1] + imageHeight, :, :] = images[i + 1][:, 0: overlapWidth, :]
+        blendedOverlap = linearBlend.linearBlending(overlapImg1, overlapImg2)
+        stitchedImage[imageOrigin[1]: imageOrigin[1] + imageHeight, imageOrigin[0]: imageOrigin[0] + imageWidth, :] = images[i + 1][:, :, :]
+        stitchedImage[:, imageOrigin[0]: imageOrigin[0] + overlapWidth, :] = blendedOverlap[:, :, :]
     return stitchedImage

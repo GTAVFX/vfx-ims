@@ -68,6 +68,7 @@ for imagePath in fileList:
     grayImage = cv2.cvtColor(np.float32(colorImage), cv2.COLOR_BGR2GRAY)
     featuresPos = fd.detectFeatures(grayImage)
     features = oa.assignOreintation(grayImage, featuresPos)
+    # fdis.displayFeatures(colorImage, features)
     featurePatch = fdes.getFeaturePatch(grayImage, features)
     imageFeatures.append(features)
     imageFeaturePatches.append(featurePatch)
@@ -76,7 +77,7 @@ matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
 
 # Print features
 # for i in range(TOTAL_IMAGES - 1):
-#     fdis.featureDisplay(images[i], images[i+1], matchedIndices[i], imageFeatures[i], imageFeatures[i+1])
+#     fdis.displayMatchedFeatures(images[i], images[i+1], matchedIndices[i], imageFeatures[i], imageFeatures[i+1])
 
 imageDisplacements = cid.calcImageDisplacements(imageFeatures, matchedIndices)
 stitchedImage = ist.imageStitching(images, imageDisplacements)

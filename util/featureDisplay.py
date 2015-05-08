@@ -2,7 +2,21 @@ import random
 import numpy as np
 import cv2
 
-def featureDisplay(image1, image2, matchedPairs, image1Features, image2Features):
+def displayFeatures(image, imageFeatures):
+    Image = np.array(image)
+    for feature in imageFeatures:
+        x, y, orientation = feature
+        startPt = (int(x), int(y))
+        cv2.circle(Image, startPt, 10, (255, 0, 0), 2)
+        lineLength = 15
+        endPt = (np.round(lineLength * np.cos(orientation) + startPt[0]), np.round(lineLength * np.sin(orientation) + startPt[1]))
+        endPt = tuple(np.array(endPt, dtype=np.int64))
+        cv2.line(Image, startPt, endPt, (255, 0, 0), 2)
+    cv2.namedWindow('Features', cv2.WINDOW_NORMAL)
+    cv2.imshow('Features', Image)
+    cv2.waitKey(0)
+
+def displayMatchedFeatures(image1, image2, matchedPairs, image1Features, image2Features):
     Image1 = np.array(image1)
     Image2 = np.array(image2)
     for j in range(len(matchedPairs)):

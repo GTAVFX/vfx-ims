@@ -8,13 +8,28 @@ import cylintransform as ct
 import util.calcImageDisplacements as cid
 import imageStitching as ist
 import random
-
+import util.featuredisplay as fdis
 ORIGINAL_IMAGE_PATH = 'original_images/'
-# ORIGINAL_IMAGE_PATH = 'images/csie/'
+#ORIGINAL_IMAGE_PATH = 'images/csie/'
 OUTPUT_IMAGE_PATH = 'output_images/'
 FOCUS = 2243
-
 TOTAL_IMAGES = 9
+
+
+MAX_IMAGES = 50
+#check the biggest number of image filename
+for i in range(MAX_IMAGES):
+    imagePath = ORIGINAL_IMAGE_PATH + str(i + 1) + '.JPG'
+    if(cv2.imread(imagePath)==None):
+        TOTAL_IMAGES = i
+        print i
+        break
+
+#read the focus value
+CONFIG_PATH = 'original_images/focus.txt'
+f = open(CONFIG_PATH,'r')
+FOCUS = int(f.readline())
+print FOCUS
 
 images = []
 imageFeatures = []
@@ -44,12 +59,12 @@ for i in range(TOTAL_IMAGES):
     # cv2.imshow('Test', colorImage)
     # cv2.waitKey(0)
 matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
-
+'''
 imageDisplacements = cid.calcImageDisplacements(imageFeatures, matchedIndices)
 stitchedImage = ist.imageStitching(images, imageDisplacements)
 outputPath = OUTPUT_IMAGE_PATH + 'stitchedImage.jpg'
 cv2.imwrite(outputPath, stitchedImage)
-
+'''
 for i in range(TOTAL_IMAGES - 1):
     nextIndex = i + 1
     colorImage = images[i]
@@ -65,6 +80,8 @@ for i in range(TOTAL_IMAGES - 1):
     matched = matchedIndices[i]
     features = imageFeatures[i]
     nextFeatures = imageFeatures[nextIndex]
+    fdis.featuredisplay(images[i],images[i+1],matched,features,nextFeatures)
+'''
     for j in range(len(matched)):
         R = j * random.randint(0, 65536) % 255
         G = j * random.randint(0, 65536) % 255
@@ -85,5 +102,6 @@ for i in range(TOTAL_IMAGES - 1):
     cv2.imshow('Test1', images[i])
     cv2.imshow('Test2', images[nextIndex])
     cv2.waitKey(0)
+'''
 
 cv2.destroyAllWindows()

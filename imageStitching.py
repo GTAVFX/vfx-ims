@@ -8,6 +8,13 @@ def imageStitching(images, imageDisplacements):
     # Calculate width and height for stitched image
     stitchedImageWidth = imageWidth + np.sum(np.array(imageDisplacements)[:, 0])
 
+    # Stitched Image Width means the images rotate in reverse direction
+    if stitchedImageWidth < 0:
+        imageDisplacements = imageDisplacements[::-1]
+        imageDisplacements = [(-imageDisplacement[0], imageDisplacement[1]) for imageDisplacement in imageDisplacements]
+        stitchedImageWidth = imageWidth + np.sum(np.array(imageDisplacements)[:, 0])
+        images = images[::-1]
+
     yOrigin = 0
     maxPositiveShift = 0
     maxNegativeShift = 0

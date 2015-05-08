@@ -46,7 +46,6 @@ convert = lambda text: int(text) if text.isdigit() else text
 alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
 
 fileList.sort(key=alphanum_key)
-print fileList
 
 TOTAL_IMAGES = len(fileList)
 print 'Total', TOTAL_IMAGES, 'images'
@@ -75,8 +74,9 @@ for imagePath in fileList:
 
 matchedIndices = fm.featureMatch(imageFeatures, imageFeaturePatches)
 
-for i in range(TOTAL_IMAGES - 1):
-    fdis.featureDisplay(images[i], images[i+1], matchedIndices[i], imageFeatures[i], imageFeatures[i+1])
+# Print features
+# for i in range(TOTAL_IMAGES - 1):
+#     fdis.featureDisplay(images[i], images[i+1], matchedIndices[i], imageFeatures[i], imageFeatures[i+1])
 
 imageDisplacements = cid.calcImageDisplacements(imageFeatures, matchedIndices)
 stitchedImage = ist.imageStitching(images, imageDisplacements)
